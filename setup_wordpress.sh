@@ -44,7 +44,7 @@ echo "Confuguratino de wordpress pour l'utilisatino de la base de données"
 sudo -u www-data cp /srv/www/wordpress/wp-config-sample.php /srv/www/wordpress/wp-config.php
 sudo -u www-data sed -i 's/database_name_here/wordpress/' /srv/www/wordpress/wp-config.php
 sudo -u www-data sed -i 's/username_here/wordpress/' /srv/www/wordpress/wp-config.php
-sudo -u www-data sed -i 's/password_here/${password}/' /srv/www/wordpress/wp-config.php
+sudo -u www-data sed -i "s/password_here/${password}/" /srv/www/wordpress/wp-config.php
 
 # là on retire les lignes contenant AUTH_KEY, SECURE_AUTH_KEY, etc pour les remplacés par des variables aléatoires générés par l'api wordpress
 sudo sed -i '/AUTH_KEY/d' /srv/www/wordpress/wp-config.php 
@@ -56,6 +56,13 @@ sudo sed -i '/NONCE_SALT/d' /srv/www/wordpress/wp-config.php
 sudo sed -i '/LOGGED_IN_SALT/d' /srv/www/wordpress/wp-config.php
 sudo sed -i '/SECURE_AUTH_SALT/d' /srv/www/wordpress/wp-config.php
 
+sudo sed -i '/ABSPATH/d' /srv/www/wordpress/wp-config.php
+sudo sed -i '/^}/d' /srv/www/wordpress/wp-config.php
+
+
 wget https://api.wordpress.org/secret-key/1.1/salt/ -q -O - >> /srv/www/wordpress/wp-config.php # récupèration des variables aléatoires généré par wordpress pour un site sécurisé
+
+printf "if ( ! defined( 'ABSPATH' ) ) {\n        define( 'ABSPATH', __DIR__ . '/' );\n}\n\nrequire_once ABSPATH . 'wp-settings.php';" >> /srv/www/wordpress/wp-config.php
+
 
 echo "Tout est bon ! vous pouvez maintenant taper l'ip de ce serveur dans votre barre de navigation pour continuer l'installatino de wordpress"
